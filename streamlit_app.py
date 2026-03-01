@@ -2,6 +2,9 @@ import json
 import numpy as np
 import streamlit as st
 from PIL import Image
+import os
+import random
+from glob import glob
 
 import torch
 import torch.nn as nn
@@ -13,6 +16,9 @@ from torchvision import models, transforms
 MODEL_PATH = "models/model.pt"
 CLASS_PATH = "models/class_names.json"
 IMG_SIZE = 224
+# Optional: local sample dataset path (for random demo images)
+# Use Testing folder for random demo samples
+SAMPLE_DATASET_DIR = "dataset/Testing"
 
 IMAGENET_MEAN = (0.485, 0.456, 0.406)
 IMAGENET_STD  = (0.229, 0.224, 0.225)
@@ -77,12 +83,57 @@ def predict_pil(img: Image.Image):
 # ----------------------------
 # UI
 # ----------------------------
-uploaded = st.file_uploader("Upload an MRI image (jpg/png)", type=["jpg", "jpeg", "png"])
+st.subheader("Choose Image Source")
+mode = st.radio(
+    "Select input method:",
+    ["Upload Image", "Random Sample from Dataset"]
+)
 
-col1, col2 = st.columns(2, gap="large")
+uploaded = None
+sample_image = None
+
+if mode == "Upload Image":
+    uploaded = st.file_uploader("Upload an MRI image (jpg/png)", type=["jpg", "jpeg", "png"])
+
+elif mode == "Random Sample from Dataset":
+    if os.path.isdir(SAMPLE_DATASET_DIR):
+        image_paths = glob(os.path.join(SAMPLE_DATASET_DIR, "**", "*.jpg"), recursive=True)
+        image_paths += glob(os.path.join(SAMPLE_DATASET_DIR, "**", "*.png"), recursive=True)
+
+        if image_paths:
+            if st.button("Load Random Sample"):
+                sample_path = random.choice(image_paths)
+                st.session_state["sample_path"] = sample_path
+        
+            if "sample_path" in st.session_state:
+                sample_path = st.session_state["sample_path"]
+                sample_image = Image.open(sample_path)
+
+                # Extract metadata
+                file_name = os.path.basename(sample_path)
+                file_ext = os.path.splitext(sample_path)[1]
+                true_label = os.path.basename(os.path.dirname(sample_path))
+
+                st.caption(f"File: {file_name}")
+                st.caption(f"Type: {file_ext}")
+                st.caption(f"True Label (folder): {true_label}")
+        else:
+            st.warning("No images found in SAMPLE_DATASET_DIR.")
+    else:
+        st.warning("SAMPLE_DATASET_DIR does not exist. Update the path in the config.")
+
+image_to_use = None
 
 if uploaded:
-    img = Image.open(uploaded)
+    image_to_use = Image.open(uploaded)
+
+elif sample_image is not None:
+    image_to_use = sample_image
+
+if image_to_use is not None:
+    img = image_to_use
+
+    col1, col2 = st.columns(2, gap="large")
 
     with col1:
         st.image(img, caption="Uploaded image", use_container_width=True)
