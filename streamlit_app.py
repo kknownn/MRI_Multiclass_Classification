@@ -101,10 +101,16 @@ elif mode == "Random Sample from Dataset":
         image_paths += glob(os.path.join(SAMPLE_DATASET_DIR, "**", "*.png"), recursive=True)
 
         if image_paths:
-            if st.button("Load Random Sample"):
+            col_a, col_b = st.columns(2)
+
+            if col_a.button("Load Random Sample"):
                 sample_path = random.choice(image_paths)
                 st.session_state["sample_path"] = sample_path
-        
+
+            if col_b.button("Random Again"):
+                sample_path = random.choice(image_paths)
+                st.session_state["sample_path"] = sample_path
+
             if "sample_path" in st.session_state:
                 sample_path = st.session_state["sample_path"]
                 sample_image = Image.open(sample_path)
@@ -159,6 +165,6 @@ if image_to_use is not None:
         st.bar_chart({class_names[i]: float(probs[i]) for i in range(num_classes)})
 
         st.divider()
-        st.caption("Note: This demo is for educational purposes and not for clinical use.")
+        st.caption("Note: This demo is for educational purposes, submission for 888351 | Modern Computer Vision And Applications For Entrepreneur. And not for clinical use.")
 else:
     st.info("Upload an MRI image to see predictions.")
