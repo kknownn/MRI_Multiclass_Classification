@@ -23,7 +23,7 @@ The model classifies MRI images into four categories:
 │   └── ...
 ├── main.ipynb
 ├── streamlit_app.py
-├── streamlit_requirements.txt
+├── requirements.txt
 └── README.md
 ```
 
@@ -42,7 +42,7 @@ Use the provided notebook (`.ipynb`) to train the model on the brain tumor MRI d
 Install dependencies:
 
 ```bash
-pip install -r streamlit_requirements.txt
+pip install -r requirements.txt
 ```
 
 Run the demo app:
