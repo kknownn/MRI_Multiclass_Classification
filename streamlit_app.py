@@ -27,11 +27,11 @@ st.set_page_config(page_title="Brain Tumor MRI Classifier", layout="centered")
 st.title("Brain Tumor MRI Classifier (ResNet50, PyTorch)")
 
 # ----------------------------
-# Device (Apple Silicon MPS)
+# Device (CUDA)
 # ----------------------------
 def get_device():
-    if torch.backends.mps.is_available():
-        return torch.device("mps")
+    if torch.backends.cuda.is_available():
+        return torch.device("cuda")
     return torch.device("cpu")
 
 device = get_device()
